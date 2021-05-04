@@ -1,0 +1,144 @@
+---
+title: "**Modul 3: Time Series Analysis**"
+author: "Muhammad Apriandito - Digital Business Experience"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dev = "png", 
+                      dev.args = list(type = "cairo-png"), 
+                      fig.height = 5, 
+                      fig.width = 9, 
+                      tidy='styler', tidy.opts=list(strict=FALSE), 
+                      fig.align = "center")
+options(scipen=10000)
+```
+
+### **Modul Description**
+
+Time series forecasting is a technique for the prediction of events through a sequence of time. The techniques predict future events by analyzing the trends of the past, on the assumption that future trends will hold similar to historical trends.
+
+------------------------------------------------------------------------
+
+### **Reading Material**
+
+Please read the following materials.
+
+1.  Forecasting: Principles and Practice: <https://otexts.com/fpp2/>
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Based on the reading materials, please answer the following questions and submit it via google classroom before the class starts.
+
+1.  How many data types and structures are there in the R programming language?
+
+2.  State the type of control flow?
+
+3.  What do the R Packages mean?
+
+------------------------------------------------------------------------
+
+### **Case: Superstore Retail**
+
+Superstore is a retail company in the United States that sells a variety of office and household equipment. The superstore has an e-commerce platform where customers can order goods online through the platform.The E-commerce platform has been operating since January 2014.
+
+Selama E-commerce mengalami penjualan yang cukup fluktuatif,
+
+Ingin memprediksi bagaimana penjualan ditahun 2019
+
+#### **Load library**
+
+```{r message=FALSE, warning=FALSE}
+# Load library
+library(tidyverse)
+library(readxl)
+library(timetk)
+library(tidymodels)
+library(modeltime)
+```
+
+#### **Load Data**
+
+```{r message=FALSE, warning=FALSE}
+# Load Data
+df <- read_csv("data/Superstore-sales.csv") 
+```
+
+#### **Visualize Data**
+
+```{r message=FALSE, warning=FALSE}
+# Visualize Data
+df %>%
+  plot_time_series(date, sales, .interactive = FALSE)
+```
+
+```{r}
+# Split
+splits <- df %>%
+  time_series_split(assess = "1 year", cumulative = TRUE)
+```
+
+```{r}
+splits %>%
+  tk_time_series_cv_plan() %>%
+  plot_time_series_cv_plan(date, sales, .interactive = FALSE)
+```
+
+#### **Model Fit**
+
+```{r}
+model_fit_arima <- arima_reg() %>%
+  set_engine("auto_arima") %>%
+  fit(sales ~ date, training(splits))
+```
+
+```{r}
+model_table <- modeltime_table(
+  model_fit_arima
+) 
+
+model_table
+```
+
+```{r}
+calibration_table <- model_table %>%
+  modeltime_calibrate(testing(splits))
+
+calibration_table
+```
+
+```{r message=FALSE, warning=FALSE}
+calibration_table %>%
+  modeltime_forecast(actual_data = df) %>%
+  plot_modeltime_forecast(.interactive = FALSE)
+```
+
+```{r}
+calibration_table %>%
+  modeltime_accuracy() %>%
+  table_modeltime_accuracy(.interactive = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE}
+calibration_table %>%
+
+  
+  # Refit and Forecast Forward
+  modeltime_refit(df) %>%
+  modeltime_forecast(h = "12 months", actual_data = df) %>%
+  plot_modeltime_forecast(.interactive = FALSE)
+```
+
+## Post Test
+
+1.  Make a forecasting model using bicycle rental data using ARIMA and ETS
+
+2.  Evaluate the forecasting model that you have created
+
+3.  Perform forecasting for the next 5 months

@@ -1,0 +1,204 @@
+---
+title: "**Modul 4: Supervised Machine Learning**"
+author: "Muhammad Apriandito - Digital Business Experience"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dev = "png", 
+                      dev.args = list(type = "cairo-png"), 
+                      fig.height = 5, 
+                      fig.width = 9, 
+                      tidy='styler', tidy.opts=list(strict=FALSE), 
+                      fig.align = "center")
+options(scipen=10000)
+```
+
+### **Modul Description**
+
+Data visualization is the graphical representation of information and data. By using visual elements like charts, graphs, and maps, data visualization tools provide an accessible way to see and understand trends, outliers, and patterns in data.
+
+------------------------------------------------------------------------
+
+### **Reading / Watching Material**
+
+Please read/watch the following materials before class:
+
+1.  The Hundred Page Machine Learning Book - Andriy Burkov
+
+2.  What is machine learning: <https://www.youtube.com/watch?v=HcqpanDadyQ>
+
+3.  The 7 steps of machine learning: <https://www.youtube.com/watch?v=nKW8Ndu7Mjw>
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Please answer this following question in your
+
+1.  What are the 3 types of Machine Learning?
+
+2.  What is Supervised Learning?
+
+3.  State the 5 algorithm of classification
+
+------------------------------------------------------------------------
+
+## Machine Learning
+
+Machine learning is the study of computer algorithms that improve automatically through experience and by the use of data.
+
+### Load Package
+
+```{r}
+# Install package
+install.packages(c("tidyverse", "tidymodels"))
+```
+
+```{r}
+# Load package
+library(tidyverse)
+library(tidymodels)
+library(rpart)
+library(rpart.plot)
+```
+
+### Import Data
+
+Before we start, let's import the data first.
+
+```{r}
+# Import Data
+df <- read_csv2("data/raw/bank-marketing.csv")
+```
+
+```{r}
+# Displays the first 5 rows of data
+head(df)
+```
+
+```{r}
+# Display data summary  using the glimpse() function
+glimpse(df)
+```
+
+In general, after the data is imported, the next step is EDA or Exploratory Data Analysis. EDA aims to find initial insights regarding the data we have. However, in this practice we assume that the data we have is good enough to be modeled.
+
+### Split Data
+
+Before being modeled, the data must be divided into two, namely the train data to make the model, and the test data to test the model's performance. Generally, the data is divided by the proportion: 70% train and 30% test.
+
+```{r}
+# Set Seed
+set.seed(1234)
+```
+
+```{r}
+# Split the data by the proportion 70:30
+df_split <- initial_split(df, prop = 0.7)
+df_split
+```
+
+```{r}
+# Show summary of training data
+df_split %>%
+  training() %>%
+  glimpse()
+```
+
+### Create a Data Processing Flow
+
+After splitting the data into training data and testing data, we can begin to create a data processing flow. Here, we will determine the role of each variable, including the role as a predicted target, and those that act as predictors. In this data processing, we can also add other processes to improve data quality such as: filling in empty data values, normalizing, down sampling, and so on.
+
+```{r}
+# Create a Recipe
+df_recipe <- training(df_split) %>%
+  recipe(y ~.) %>%
+  prep()
+df_recipe
+```
+
+To see the processing result of the traning data, we can use the `juice()` function.
+
+```{r}
+# Apply to training data
+df_training <- juice(df_recipe)
+glimpse(df_training)
+```
+
+If it is appropriate, we can apply the process to the testing data using `bake` function.
+
+```{r}
+# Apply to testing data
+df_testing <- df_recipe %>%
+  bake(testing(df_split)) 
+glimpse(df_testing)
+```
+
+### Determining the Algorithm
+
+The next step is to determine what algorithm we will use to make classification predictions. In this module, we will use a decision tree algorithm.
+
+```{r}
+# Sets the model
+dt <-  decision_tree() %>%
+  set_engine("rpart") %>% 
+  set_mode("classification") 
+```
+
+### Create a Workflow
+
+If you have determined the data processing flow and the algorithm that will be used, we can combine it into 1 workflow.
+
+```{r}
+# Create a Workflow
+workflow <- workflow() %>%
+  add_model(dt) %>%
+  add_recipe(df_recipe)
+```
+
+### Training
+
+```{r}
+# Training Model
+model <- fit(workflow, training(df_split))
+```
+
+```{r}
+# Visualize the model
+tree_fit <- model %>% 
+  pull_workflow_fit()
+rpart.plot(tree_fit$fit)
+```
+
+### Model Evaluation
+
+The last step is to do an evaluation model. This assessment is used to measure how well our model predicts by comparing the predicted value with the actual value.
+
+```{r}
+# Make a prediction to Test Data
+predict(model, testing(df_split))
+```
+
+```{r}
+# Defines evaluation metrics to measure model performance
+multi_metrics <- metric_set(accuracy, precision, recall, specificity)
+
+# See model performance
+model %>%
+  predict(df_testing) %>%
+  bind_cols(df_testing) %>%
+  multi_metrics(truth = y, estimate = .pred_class)
+```
+
+## Post Test
+
+1.  Create a model to predict customer churn using the telco customer churn dataset.
+
+2.  Measure the model's performance
+
+3.  Interpret of the model's performance
