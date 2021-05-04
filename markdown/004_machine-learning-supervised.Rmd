@@ -64,6 +64,7 @@ install.packages(c("tidyverse", "tidymodels"))
 library(tidyverse)
 library(tidymodels)
 library(rpart)
+library(naivebayes)
 library(rpart.plot)
 ```
 
