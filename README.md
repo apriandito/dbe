@@ -1,5 +1,5 @@
-# Digital Business Experience - MBA ITB (Draft)
-Materi praktek kuliah Digital Business Experience - MBA ITB
+# Digital Business Experience (Draft)
+Materi praktek kuliah Digital Business Experience
 
 Semua modul dapat diakses melalui Rpubs
 * Modul 1 - Introduction to R:  https://rpubs.com/apriandito/dbe01
