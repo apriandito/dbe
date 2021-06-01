@@ -1,6 +1,6 @@
 ---
 title: "**Modul 1: Introduction to R for Data Analytics**"
-author: "Muhammad Apriandito - Digital Business Experience"
+author: "Manahan Siallagan - Muhammad Apriandito"
 output:
   html_document:
     theme: paper
@@ -9,30 +9,33 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dev = "png", 
-                      dev.args = list(type = "cairo-png"), 
-                      fig.height = 5, 
-                      fig.width = 9, 
-                      tidy='styler', tidy.opts=list(strict=FALSE), 
-                      fig.align = "center")
-options(scipen=10000)
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 5,
+  fig.width = 9,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
 ```
 
 ------------------------------------------------------------------------
 
 ### **Reading Material**
 
-Please read the following materials before class:
+Please read the following material before class starts.
 
-1.  An Introduction to R: <https://intro2r.com/>
+1.  [An Introduction to R](https://intro2r.com/){.uri}
 
-2.  R for Data Science: <https://r4ds.had.co.nz/>
+2.  [R for Data Science](https://r4ds.had.co.nz/){.uri}
 
 ------------------------------------------------------------------------
 
 ### **Pretest**
 
-Please anwer this following question and submit it in google classroom
+Based on the reading material above, please answer the following questions and collect the answers via Google Classroom.
 
 1.  How many data types and structures are there in the R programming language?
 
@@ -237,12 +240,12 @@ roi <- function(profit, cost_of_investment) {
 
 ```{r}
 # Using the ROI function that has been created
-roi(profit = 175, cost_of_investment =  75)
+roi(profit = 175, cost_of_investment = 75)
 ```
 
 #### **Package**
 
-R Package is a collection of functions / functions or data in R. There are many packages created / developed by other users. The following are examples of packages that are commonly used. To be able to use the existing functions in a package, we must install and load the package first.
+R Package is a collection of functions / functions or data in R. There are many packages created / developed by other users. To be able to use the existing functions in a package, we must install and load the package first. The following are examples of packages that are commonly used.
 
 ##### **Readxl**
 
@@ -265,7 +268,7 @@ df_xlsx <- read_xlsx("data/Sales.xlsx")
 
 ```{r}
 # View Data
-head(df_xlsx)
+df_xlsx
 ```
 
 ##### **Readr**
@@ -289,7 +292,7 @@ df_csv <- read_csv("data/Sales.csv")
 
 ```{r}
 # View Data
-head(df_csv)
+df_csv
 ```
 
 ------------------------------------------------------------------------

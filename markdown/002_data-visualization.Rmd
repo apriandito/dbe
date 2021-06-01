@@ -1,6 +1,6 @@
 ---
 title: "**Modul 2: Data Visualization**"
-author: "Muhammad Apriandito - Digital Business Experience"
+author: "Manahan Siallagan - Muhammad Apriandito"
 output:
   html_document:
     theme: paper
@@ -9,20 +9,17 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dev = "png", 
-                      dev.args = list(type = "cairo-png"), 
-                      fig.height = 5, 
-                      fig.width = 9, 
-                      tidy='styler', tidy.opts=list(strict=FALSE), 
-                      fig.align = "center")
-options(scipen=10000)
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 5,
+  fig.width = 9,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
 ```
-
-------------------------------------------------------------------------
-
-### **Modul Description**
-
-Data visualization is the graphical representation of information and data. By using visual elements like charts, graphs, and maps, data visualization tools provide an accessible way to see and understand trends, outliers, and patterns in data.
 
 ------------------------------------------------------------------------
 
@@ -30,21 +27,23 @@ Data visualization is the graphical representation of information and data. By u
 
 Please read the following materials.
 
-1.  R Graphic Cockbook: <https://r-graphics.org/>
+1.  [R Graphic Cockbook](https://r-graphics.org/){.uri}
 
-2.  Data Visualization with R: <https://rkabacoff.github.io/datavis/>
+2.  [Data Visualization with R](https://rkabacoff.github.io/datavis/){.uri}
 
 ------------------------------------------------------------------------
 
 ### **Pretest**
 
-Based on the reading materials, please answer the following questions and submit it via google classroom before the class starts.
+Based on the reading material above, please answer the following questions and collect the answers via Google Classroom.
 
-1.  If you want to see the distribution of a discrete data, what visualization chart should you use?
+1.  What is data visualization?
 
-2.  If you want to see a comparison of 2 continuous variables, what visualization chart should you use?
+2.  If you want to see the distribution of a discrete data, what visualization chart should you use?
 
-3.  Mention at least 2 R packages that are commonly used to visualize data in R?
+3.  If you want to see a comparison of 2 continuous variables, what visualization chart should you use?
+
+4.  Mention at least 2 R packages that are commonly used to visualize data in R?
 
 ------------------------------------------------------------------------
 
@@ -79,12 +78,16 @@ Every transaction that occurs on the platform is always recorded and stored in t
 
 This data can be accessed via the following link <https://github.com/apriandito/dataset/blob/main/Superstore.xls>. Based on this data, the management wants to know how the company's performance and customer purchasing patterns.
 
-#### **Setup**
+#### **Data Visualization**
 
-To perform data visualization in R. We need to install and load R pakcage to be used. To install a package we can use the `install.packages("package_name")` command, and to load a package we can use the command `library("package_name")`
+Data visualization is the graphical representation of data using visual elements like charts, graphs, and maps. Data visualization can help businesses answer problems by displaying information such as patterns, trends, or outliers on data in a way that is easier to understand.
+
+##### **Setup**
+
+To perform data visualization in R. We need to install and load R pakcage to be used.
 
 ```{r eval=FALSE, include= TRUE}
-# Install Packages
+# Install packages
 install.packages("readxl")
 install.packages("ggplot2")
 install.packages("dplyr")
@@ -94,7 +97,7 @@ install.packages("scales")
 ```
 
 ```{r message=FALSE, warning=FALSE}
-# Activate Packages
+# Load packages
 library("readxl")
 library("ggplot2")
 library("dplyr")
@@ -106,7 +109,7 @@ library("scales")
 After the required R packages are installed and loaded, we can load our data into the R environment.
 
 ```{r message=FALSE, warning=FALSE}
-# Load data to R environtment
+# Load data
 data <- read_xls("data/Superstore.xls")
 ```
 
@@ -115,9 +118,9 @@ data <- read_xls("data/Superstore.xls")
 head(data)
 ```
 
-#### **Sales**
+##### **Sales**
 
-First of all, the management wants to know their sales trend. To display trend data continuously we can use a line chart.
+First of all, the management wants to know their sales trend. To display trend data continuously, we can visualize it use a line chart.
 
 ```{r message=FALSE, warning=FALSE}
 # Visualize sales trend
@@ -165,11 +168,12 @@ data %>%
   theme_minimal()
 ```
 
-#### **Customer**
+##### **Customer**
 
-The management is very satisfied to see that their sales trend continues to increase. However, to improve Customer Relationship Management, Management wants to know the purchasing patterns of its customers. In the beginning, the Management wants to know which city has the highest number of sales.
+The Management is delighted to see that their sales trend continues to increase. However, to improve Customer Relationship Management, Management wants to know the purchasing patterns of its customers. So, in the beginning, the Management wants to know which city has the highest number of sales. We can visualize it using a bar chart.
 
 ```{r}
+# Visualize city with highes sales
 data %>%
   select(sales, state) %>%
   group_by(state) %>%
@@ -179,7 +183,7 @@ data %>%
   distinct() %>%
   arrange(desc(state_sales)) %>%
   slice_head(n = 5) %>%
-  ggplot(aes(x = reorder(state, -state_sales), y = state_sales, fill = state_sales))  +
+  ggplot(aes(x = reorder(state, -state_sales), y = state_sales, fill = state_sales)) +
   geom_col() +
   labs(
     title = "Top 5 cities with the highest sales",
@@ -191,16 +195,17 @@ data %>%
   theme(legend.position = "none")
 ```
 
-Based on the visualization above, the 5 states with the highest sales are California, New York, Texas, Washington, Pennsylvania. However, management has an additional question, are the sales of the five cities continuing to increase or is it just stagnant?
+Based on the visualization above, the five states with the highest sales are California, New York, Texas, Washington, Pennsylvania. However, management has an additional question: Are the five cities' sales continuing to increase, or is it just stagnant?
 
 ```{r message=FALSE, warning=FALSE}
+# Visualize sales trend by State
 data %>%
   select(order_date, sales, state) %>%
-    filter(state == c(
+  filter(state == c(
     "California",
     "New York",
     "Texas",
-    "Washington", 
+    "Washington",
     "Pennsylvania"
   )) %>%
   mutate(order_month = floor_date(order_date, "month")) %>%
@@ -215,7 +220,7 @@ data %>%
     title = "Sales Trend by State",
     subtitle = "Superstore Company",
     x = "",
-    y = "Sales", 
+    y = "Sales",
     color = ""
   ) +
   theme_minimal() +
@@ -227,7 +232,7 @@ Based on the visualization, there is no trend of increasing sales in every state
 Furthermore, the management wants to know which segment has the highest sales for the company.
 
 ```{r}
-# Mencari tahu segment pelanggan dengan pembelian terbanyak
+# Visualize segement that has highest sales
 data %>%
   select(sales, segment, profit) %>%
   group_by(segment) %>%
@@ -237,11 +242,11 @@ data %>%
   distinct() %>%
   ggplot(aes(x = segment, y = sales, fill = sales)) +
   geom_col() +
-    labs(
+  labs(
     title = "Total Sales in Each Customer Segment",
     subtitle = "Superstore Company",
     x = "",
-    y = "", 
+    y = "",
     fill = ""
   ) +
   theme_minimal() +
@@ -251,7 +256,7 @@ data %>%
 Based on the visualization above, we can see that the segment that has the most sales is the "customer" segment. Sales data in each segmentation can be visualized over time to see whether there is an increasing trend or not.
 
 ```{r}
-# Trend Penjualan pada masing-masing segment
+# Sales trend in each segement
 data %>%
   select(order_date, sales, segment) %>%
   mutate(order_month = floor_date(order_date, "month")) %>%
@@ -266,7 +271,7 @@ data %>%
     title = "Sales Trend in Each Customer Segment",
     subtitle = "Superstore Company",
     x = "",
-    y = "Sales", 
+    y = "Sales",
     color = ""
   ) +
   theme_minimal() +
@@ -275,7 +280,7 @@ data %>%
 
 The results of the visualization show that sales in each segment continue to increase every year.
 
-#### **Product**
+##### **Product**
 
 At the end, the management wants to know which product categories are sold the most and the product categories that generate the most profits. What product categories are most sold? Do the categories that sell a lot generate a lot of profit? we can use a bar chart to visualize it.
 
@@ -291,12 +296,12 @@ data %>%
   distinct() %>%
   pivot_longer(c(sales, profit), names_to = "type", values_to = "value") %>%
   ggplot(aes(x = category, y = value, fill = type)) +
-  geom_col(position = 'dodge') +
-    labs(
+  geom_col(position = "dodge") +
+  labs(
     title = "Profit and Sales in each Product Category",
     subtitle = "Superstore Company",
     x = "",
-    y = "", 
+    y = "",
     fill = ""
   ) +
   coord_flip() +
@@ -310,7 +315,7 @@ It turns out that the product category that sold the most is the technology cate
 
 ### **Conclusion**
 
-Data visualization can help to display information from data. This information is expected to be an insight and help companies to make better decisions.
+Data visualization can help to extract information from data. This information is expected to be an insight and allow companies to make better decisions.
 
 ------------------------------------------------------------------------
 
@@ -318,6 +323,5 @@ Data visualization can help to display information from data. This information i
 
 Answer the questions using appropriate data visualizations and interpret the results.
 
-1.  Sales Trend of Each Product Category
-2.  The city with the highest sales
-3.  Sub-Category Products with highest income
+1.  Sales trend of each product category
+2.  Sub-category products with highest income

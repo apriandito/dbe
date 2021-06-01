@@ -1,0 +1,364 @@
+---
+title: "**Modul 4: Machine Learning**"
+author: "Manahan Siallagan - Muhammad Apriandito"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 5,
+  fig.width = 9,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+```
+
+------------------------------------------------------------------------
+
+### **Reading / Watching Material**
+
+Please read or watch the following material before class starts.
+
+1.  The Hundred Page Machine Learning Book - Andriy Burkov
+
+2.  [What is machine learning](https://www.youtube.com/watch?v=HcqpanDadyQ){.uri}
+
+3.  [The 7 steps of machine learning](https://www.youtube.com/watch?v=nKW8Ndu7Mjw){.uri}
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Based on the reading/watching material above, please answer the following questions and collect the answers via Google Classroom.
+
+1.  What are the 3 types of Machine Learning?
+
+2.  What is Supervised Learning?
+
+3.  State the 5 algorithm of classification
+
+------------------------------------------------------------------------
+
+### **Case: Telco Customer Churn**
+
+Getting customers is the main goal of business. However, retaining customers is a different matter. In increasingly competitive business conditions, a company will be left behind if it cannot take care of its customers. If that happens, then all efforts will be in vain. In this case, the Company must avoid customer churn. In short, customer churn is the most critical factor that any business should continue to evaluate, especially for a growing business. Customer churn, also known as customer attrition, is when customers stop using business products and services.
+
+A telecommunication company has a customer churn problem. They found that their customer churn rate was very high, and the Company realized that they had to find a solution to lower this churn rate.
+
+The Company provided 7043 customer data for analysis. This data can be accessed via a link <https://raw.githubusercontent.com/technaut-education/ba-r/main/data/raw/customer-churn.csv.> The dataset contains information about:
+
+-   Customers who left within the last month -- the column is called Churn
+
+-   Services that each customer has signed up for -- phone, multiple lines, internet, online security, online backup, device protection, tech support, and streaming TV and movies
+
+-   Customer account information -- how long they've been a customer, contract, payment method, paperless billing, monthly charges, and total charges
+
+-   Demographic info about customers -- gender, age range, and if they have partners and dependents
+
+#### **Import Data**
+
+The first step is to import the data provided by the management into environment R. To do this, the required packages must also be installed and loaded.
+
+```{r eval=FALSE, include= TRUE}
+# Install package
+install.packages(c("tidyverse", "tidymodels"))
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load package
+library(tidyverse)
+library(tidymodels)
+library(rpart)
+library(rpart.plot)
+library(discrim)
+library(skimr)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Import data
+df <- read_csv("data/customer-churn.csv")
+```
+
+```{r}
+# Displays the first 5 rows of data
+head(df)
+```
+
+```{r}
+# Display data summary using the glimpse() function
+glimpse(df)
+```
+
+```{r}
+# Display data summary using the skim() function
+skim(df)
+```
+
+#### **Data Exploration**
+
+At the initial stage, the management wants to know the information on the number of customers who churn and determine why they churn by comparing the variables in the data such as gender, partnership, type of contract, duration of the contract, and contract others.
+
+```{r}
+# Find out the proportion of churn customers
+df %>%
+  group_by(Churn) %>%
+  count() %>%
+  ggplot(aes(x = Churn, y = n, fill = Churn)) +
+  geom_col()
+```
+
+```{r}
+# Figure out the proportion of churned customers by gender
+df %>%
+  group_by(gender, Churn) %>%
+  count() %>%
+  ggplot(aes(x = gender, y = n, fill = Churn)) +
+  geom_col(position = "dodge")
+```
+
+```{r}
+# Figure out the proportion of churned customers by internet service used
+df %>%
+  group_by(InternetService, Churn) %>%
+  count() %>%
+  ggplot(aes(x = InternetService, y = n, fill = Churn)) +
+  geom_col(position = "dodge")
+```
+
+```{r}
+# Find out the proportion of subscribers churn based on the TV streaming service
+df %>%
+  group_by(StreamingTV, Churn) %>%
+  count() %>%
+  ggplot(aes(x = StreamingTV, y = n, fill = Churn)) +
+  geom_col(position = "dodge")
+```
+
+#### **Make a Customer Churn Prediction Model using Machine Learning**
+
+The information you provide during data exploration is not satisfactory for management. Knowing that customers who do not subscribe to the internet are less likely to churn is not actionable for the manager. Management wants to have a more actionable solution. They want to predict whether a customer will churn or not immediately. By knowing which customer will churn or not, management can prevent customer churn earlier.
+
+Machine learning is a sub-area of ​​AI that allows computers to learn on their own from given data. In this case, machine learning is expected to learn customer churn patterns, making it a model that can predict whether customers will churn or not in the future.
+
+The stages of making a machine learning model consisting of 2 parts, training and testing. The training aims to extract existing patterns in the data, and testing aims to evaluate the model's ability to make predictions.
+
+##### **Split Data**
+
+Before being modeled, the data must be divided into two part: the train data to make the model and the test data to test the model's performance. Generally, the data is divided by the proportion: 70% train and 30% test.
+
+```{r}
+# Set seed
+set.seed(1234)
+```
+
+```{r}
+# Split the data by the proportion 70:30
+df_split <- initial_split(df, prop = 0.7)
+df_split
+```
+
+```{r}
+# Show summary of training data
+df_split %>%
+  training() %>%
+  glimpse()
+```
+
+##### **Data Preprocessing**
+
+After splitting the data into training data and testing data, we can create a data processing flow. Here, we will determine the role of each variable, including the role as a predicted target and those that act as predictors. In this data processing, we can also add other processes to improve data quality, such as: filling in empty data values, normalizing, downsampling, etc.
+
+```{r}
+# Create a Recipe
+df_recipe <- training(df_split) %>%
+  recipe(Churn ~ gender +
+    Partner +
+    Dependents +
+    PhoneService +
+    MultipleLines +
+    InternetService +
+    OnlineSecurity +
+    OnlineBackup +
+    DeviceProtection +
+    TechSupport +
+    StreamingTV +
+    StreamingMovies +
+    Contract +
+    PaperlessBilling +
+    PaymentMethod +
+    PaymentMethod) %>%
+  prep()
+df_recipe
+```
+
+To see the processing result of the traning data, we can use the `juice()` function.
+
+```{r}
+# Apply to training data
+df_training <- juice(df_recipe)
+glimpse(df_training)
+```
+
+If it is appropriate, we can apply the process to the testing data using `bake` function.
+
+```{r}
+# Apply to testing data
+df_testing <- df_recipe %>%
+  bake(testing(df_split))
+glimpse(df_testing)
+```
+
+##### **Training: Creating The Prediction Model**
+
+The next step is to determine what algorithm we will use to make classification predictions. In this module, we will use a decision tree, naive bayes, and svm algorithm.
+
+```{r}
+# Setting the Decision Tree Model
+dt <-  decision_tree() %>%
+  set_engine("rpart") %>% 
+  set_mode("classification") 
+```
+
+```{r}
+# Setting the Naive Bayes Model
+nb <-  naive_Bayes() %>% 
+  set_engine("naivebayes") %>% 
+  translate()
+```
+
+```{r}
+# Setting the SVM Model
+svm <- svm_rbf() %>% 
+  set_engine("kernlab") %>% 
+  set_mode("classification") %>% 
+  translate()
+```
+
+after we determined the data processing flow and the algorithm used, we can combine it into one workflow.
+
+```{r}
+# Build Workflow for the Decision Tree Algorithm
+workflow_dt <- workflow() %>%
+  add_model(dt) %>%
+  add_recipe(df_recipe)
+
+```
+
+```{r}
+# Build Workflow for the Naive Bayes Algorithm
+workflow_nb <- workflow() %>%
+  add_model(nb) %>%
+  add_recipe(df_recipe)
+```
+
+```{r}
+# Build Workflow for the SVM Algorithm
+workflow_svm <- workflow() %>%
+  add_model(svm) %>%
+  add_recipe(df_recipe)
+```
+
+The workflow is then applied to the predetermined training data to build the model. We will do three training processes for three different algorithms.
+
+```{r}
+# Training Model for the Decision Three Algorithm
+model_dt <- fit(workflow_dt, training(df_split))
+```
+
+```{r}
+# Training Model for the Naive Bayes Algorithm
+model_nb <- fit(workflow_nb, training(df_split))
+```
+
+```{r}
+# Training Model for the SVM Algorithm
+model_svm <- fit(workflow_svm, training(df_split))
+```
+
+##### **Testing: Evaluate the Model**
+
+The last step is to do an evaluation model. This assessment measures how well our model predicts by comparing the predicted value with the actual value.
+
+```{r}
+# Defines evaluation metrics to measure model performance
+multi_metrics <- metric_set(accuracy, 
+                            precision, 
+                            recall, 
+                            specificity, 
+                            f_meas
+                            )
+```
+
+```{r}
+# Model Evaluation for the Decion Tree Algorithm
+model_dt %>%
+  predict(df_testing) %>%
+  bind_cols(df_testing) %>%
+  multi_metrics(truth = Churn, estimate = .pred_class)
+```
+
+```{r}
+### Model Evaluation for the Naive Bayes Algorithm
+model_nb %>%
+  predict(df_testing) %>%
+  bind_cols(df_testing) %>%
+  multi_metrics(truth = Churn, estimate = .pred_class)
+```
+
+```{r}
+### Model Evaluation for the SVM Algorithm
+model_svm %>%
+  predict(df_testing) %>%
+  bind_cols(df_testing) %>%
+  multi_metrics(truth = Churn, estimate = .pred_class)
+```
+
+As we can see above, the performance of the 3 models above is different. The model with the best performance is the SVM model which has an accuracy of 7.89%.
+
+#### **Use The Model**
+
+This month there are 10 new customers, and management wants to know how many of these 10 customers will churn.
+
+```{r message=FALSE, warning=FALSE}
+# Import new customer data
+df_new <- read_csv("data/customer-churn_new.csv")
+```
+
+```{r}
+# Show Data
+df_new
+```
+
+We will try to predict whether the customer is up to churn or not, using the model we have created. The model chosen is the model that has the best performance.
+
+```{r}
+# Predict wheter the customer will be churn or not
+model_svm %>%
+  predict(df_new) %>%
+  bind_cols(df_new)
+```
+
+Based the prediction result, It turns out that from the 10 new customers, 6 are predicted to churn.
+
+------------------------------------------------------------------------
+
+### **Conclusion**
+
+Machine learning can extract patterns from data, and can be used to predict the same problem in the future.
+
+------------------------------------------------------------------------
+
+### **Post Test**
+
+1.  What should management do with customers who are predicted churn?
+
+2.  Try to use the Random Forest classification algorithm to create a customer churn prediction model, and compare its performance with the 3 algorithms that have been used previously?
+
+3.  Besides to predicting customer churn, what do you think are other examples of the implementation of this classification technique in Business, mention at least 3 examples!

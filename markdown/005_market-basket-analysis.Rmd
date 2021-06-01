@@ -1,0 +1,175 @@
+---
+title: "**Modul 5: Market Basket Analysis**"
+author: "Muhammad Apriandito - Digital Business Experience"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 10,
+  fig.width = 10,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
+```
+
+------------------------------------------------------------------------
+
+### **Reading / Watching Material**
+
+Please read or watch the following material before class starts.
+
+1.  [A Gentle Introduction on Market Basket Analysis](https://towardsdatascience.com/a-gentle-introduction-on-market-basket-analysis-association-rules-fa4b986a40ce)
+
+2.  [Data Mining: Market Basket Analysis](https://www.youtube.com/watch?v=sVFmbBOXo7A)
+
+3.  [Apriori Algorithm Explained \| Association Rule Mining \| Edureka:](https://www.youtube.com/watch?v=guVvtZ7ZClw)
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Based on the reading/watching material above, please answer the following questions and collect the answers via Google Classroom.
+
+1.  What is Market Basket Analysis?
+
+2.  What is Association Rule?
+
+3.  State at least 2 association algorithms
+
+4.  What is meant by support, confidence, and lift?
+
+------------------------------------------------------------------------
+
+### **Case: Dito Mart**
+
+**"Dito Mart"** (A fictional store) used to be a very busy grocery store in Bandung. However, due to the COVID-19 pandemic and there is activity restriction makes Dito Mart is empty of buyers and has experienced a decline in sales. This condition can get worse because there is still a lot of inventory backlog in the warehouse and must be sold immediately.
+
+As a solution, this month Dito Mart wants to try to make a Big Sale by selling their products in bundles. This is an excellent strategy, as well as to reduce the inventory backlog. This big sale is expected to increase Dito Mart's sales. However, Dito Mart's management has a fear. They are afraid that if the bundled item is not appropriate, it will cause the package not to be sold.
+
+Fortunately, over the past month, Dito Mart has always recorded customer purchase data in their database. This data is expected to provide information on what products they should sell together in bundles. The data can be accessed via the `Arules` package with name `Groceries`.
+
+#### **Setup**
+
+To be able to access and perform data analysis, the required pacakge must be installed and loaded first.
+
+```{r eval=FALSE, include= TRUE}
+# Install packages
+install.packages(c("arules", "arulesViz"))
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load packages
+library("tidyverse")
+library("arules")
+library("arulesViz")
+```
+
+After the required packages are installed and loaded, we can directly import the data. As mentioned abover, the data is contained in `Arules` package with the name `Groceries`. The data can be imported using the `data()` command.
+
+```{r}
+# Load data
+data(Groceries)
+```
+
+```{r}
+# See data information
+print(Groceries)
+```
+
+The data provided is customer purchase transaction data within 30 days. The data contains 9825 transactions from 169 available items. The following is an example of the top 5 transactions.
+
+```{r}
+# Example of Item in Transaction
+inspect(head(Groceries, 5))
+```
+
+Each index represents 1 transaction, so items in the same index are items purchased in the same transaction by the same customer.
+
+#### **Market Basket Analysis**
+
+Market Basket Analysis is one of the essential techniques used by large retailers to uncover associations between items by looking for combinations of items that occur together frequently in transactions. Market Basket Analysis uses the Association Rule Mining principle, which is a type of unsupervised learning. Association Rule reviews each transaction containing a number of items (products) and extracts useful relationship patterns among the items in the form of rules. Association Rule are viewed as a two-step approach:
+
+1.  Frequent Itemset Generation: Find all frequent item-sets with support
+
+2.  Rule Generation: List all Association Rules from frequent item-sets. Calculate Support and Confidence for all rules.
+
+##### **Frequent Itemset Generation**
+
+The first stage in Market Basket Analysis is to find out the frequent itemsets. Frequent items are an item that is often purchased by customers. The association algorithm that will be used is the apriori algorithm. We can set some threshold parameters in the apriori algorithm, such as the minimum or maximum support value (the percentage of these items appears in all transactions). As a note, there is no fixed value for the threshold. The thing to consider is the high support value causes the number of items generated to be too few, and the low support value causes the number of items generated to be too many. In this case, the minimum support value that will be used is 0.001.
+
+```{r}
+# Generate Frequent Itemset
+itemsets <- apriori(Groceries,
+  parameter = list(
+    maxlen = 1,
+    support = 0.001,
+    target = "frequent itemsets"
+  )
+)
+```
+
+There are 157 items that have support value above 0.001. TThe following is an example of 5 items that have the highest support value.
+
+```{r}
+# 5 Items with the highest support value
+inspect(head(sort(itemsets, by = "support"), 5))
+```
+
+##### **Rules Generation**
+
+The next stage is to find out the connection between items or also known as rule generation.
+
+```{r}
+# Show
+rules <- apriori(Groceries,
+  parameter = list(
+    support = 0.001,
+    target = "rules"
+  )
+)
+```
+
+Of the 157 items that have support for 0.001, there are 410 rules. The following are 5 rules that have the highest confident value.
+
+```{r}
+inspect(head(sort(rules, by = "confidence"), 5))
+```
+
+The confidence value is in the range of 0 to 1. A confidence value of 0 indicates that there is no relationship at all between the lhs item and the rhs item. Meanwhile, a confidence value of 1 indicates that there is a very strong relationship between the items LHS and RHS.
+
+It can be seen from the example rule above, all rules have confidence 1, which means that there is a definite relationship between the lhs and rhs items. For example in rule number 1, if a consumer buys rice and sugar, then he will definitely buy whole milk.
+
+#### **Rules Map**
+
+In the last step we can map the rules between items in network form. So that the network is not too complex and easy to interpret, only rules that have a high confidence value are displayed.
+
+```{r message=FALSE, warning=FALSE}
+# Get 10 rules with the highest confidence value
+highconfidence <- head(sort(rules, by = "confidence"), 10)
+
+# Visualize rule
+plot(highconfidence, method = "graph")
+```
+
+Based on the visualization above, we can see the relationship between the rules between items. It appears that whole milk items are the most frequent antecedent of purchases.
+
+------------------------------------------------------------------------
+
+### **Conclusion**
+
+Market Basket Analysis using can be used by retailers to uncover associations between items.
+
+------------------------------------------------------------------------
+
+### **Post Test**
+
+1.  Based on the results of the above analysis, what products should Dito Mart sell in bundles? Why?

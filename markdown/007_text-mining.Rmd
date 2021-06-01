@@ -1,0 +1,160 @@
+---
+title: "**Modul 7: Text Mining**"
+author: "Muhammad Apriandito - Digital Business Experience"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 5,
+  fig.width = 9,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
+```
+
+------------------------------------------------------------------------
+
+### **Reading Material**
+
+Please read the following materials.
+
+1.  : [Text Mining with R](https://www.tidytextmining.com/){.uri}
+
+2.  An Introduction to Text Mining: Research Design, Data Collection, and Analysis - Gabe Ignatow and Rada Mihalcea
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Based on the reading materials, please answer the following questions and submit it via google classroom before the class starts.
+
+1.  What is Text Mining?
+
+2.  Mention at least 2 text mining techniques
+
+3.  Mention at least 3 examples of the implementation of Text Mining in the business field
+
+------------------------------------------------------------------------
+
+### **Case: SAMSUNG**
+
+Samsung, South Korean company that is one of the world's largest producers of electronic devices. Samsung specializes in the production of a wide variety of consumer and industry electronics, including appliances, digital media devices, semiconductors, memory chips, and integrated systems. Sebagai perusahan besar, Samsung ingin mengetahui bagaiamana perspektif warganet di media sosial tentang Sasmsung.
+
+### **Text Mining**
+
+Text mining (also known as text analysis), is the process of transforming unstructured text into structured data for easy analysis. Text mining uses natural language processing (NLP), allowing machines to understand the human language and process it automatically. Text mining is widely used to analyze social media content.
+
+#### **Setup**
+
+First of all, install and load the required packages.
+
+```{r eval=FALSE, include= TRUE}
+# Install Rtweet Package
+install.packages("rtweet")
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load Package
+library(tidyverse)
+library(ggwordcloud)
+library(textclean)
+library(tidytext)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Import Data
+tweet <- read_rds("data/tweet-samsung.rds")
+```
+
+```{r}
+# Show data
+head(tweet)
+```
+
+```{r}
+# Filter Tweet
+tweet_en <- tweet %>%
+  filter(lang == "en")
+```
+
+```{r}
+# Show Filtered Tweet
+head(tweet_en)
+```
+
+#### **Wordcloud Visualization**
+
+The first analysis that can be done is the wordcloud visualization. Word clouds (also known as text clouds or tag clouds) work in a simple way: the more a specific word appears in a source of textual data (such as a speech, blog post, or database), the bigger and bolder it appears in the word cloud. Wordcloud helps us see what the conversation is about in general.
+
+```{r include=FALSE}
+# Import Stopword
+custom_stopwords <- read_csv("data/stopword-custom.txt", col_names = "word")
+```
+
+```{r}
+# Text Preprocessing
+text <- tweet_en %>%
+  select(text) %>%
+  mutate(text = strip(text)) %>%
+  mutate(text = replace_emoji(text)) %>%
+  mutate(text = replace_html(text)) %>%
+  mutate(text = replace_hash(text, pattern = "#([A-Za-z0-9_]+)", replacement = "")) %>%
+  mutate(text = replace_tag(text, pattern = "@([A-Za-z0-9_]+)", replacement = "")) %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words) %>%
+  anti_join(custom_stopwords)
+```
+
+```{r}
+head(text)
+```
+
+```{r}
+# Wordcloud Visuzation
+text %>%
+  count(word) %>%
+  filter(n > 400) %>%
+  ggplot(aes(label = word, size = n, colour = word)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 40) +
+  theme_void()
+```
+
+Based on the results of the visualization above, there are several words related to Google and iPhone.
+
+#### **Sentiment Analysis**
+
+The next analysis that can be done is sentiment analysis. Sentiment analysis (or opinion mining) is a Text Miningtechnique used to determine whether data is positive, negative or neutral.
+
+```{r message=FALSE, warning=FALSE}
+text %>%
+  inner_join(get_sentiments("bing")) %>%
+  group_by(sentiment) %>%
+  count() %>%
+  ggplot(aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_col() +
+  scale_fill_manual(values = c("#f8766d", "#00bfc4"))
+```
+
+------------------------------------------------------------------------
+
+### **Conclusion**
+
+Social media conversation content can be analyzed using text mining
+
+### Post Test
+
+1.  Collect twitter conversation data related to a well-known brand that you like
+
+2.  Analyze the sentiment
+
+3.  Interpret the result

@@ -1,0 +1,282 @@
+---
+title: "**Modul 6: Social Network Analysis**"
+author: "Muhammad Apriandito - Digital Business Experience"
+output:
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 10,
+  fig.width = 10,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
+```
+
+------------------------------------------------------------------------
+
+### **Reading Material**
+
+Please read the following materials.
+
+1.  Social Network Analysis, Konsep dan Praktis - Andry Alamsyah, Dian Ramadhani
+
+2.  Introduction to Social Network Analysis with R - Michal Bojanowski
+
+------------------------------------------------------------------------
+
+### **Pretest**
+
+Based on the reading materials, please answer the following questions and submit it via google classroom before the class starts.
+
+1.  What is Social Network Analysis?
+
+2.  Mention at least 3 types of centrality measurements.
+
+3.  Mention at least 3 examples of the implementation of Social Network Analysis in the business field.
+
+------------------------------------------------------------------------
+
+### **Case: SAMSUNG**
+
+Samsung, South Korean company that is one of the world's largest producers of electronic devices. Samsung specializes in the production of a wide variety of consumer and industry electronics, including appliances, digital media devices, semiconductors, memory chips, and integrated systems. Currently, SAMSUNG is looking for a promotional partner who can help disseminate information regarding SAMSUNG appropriately.
+
+#### **Collecting Twitter Data**
+
+To find out who is actively talking about SAMSUNG on Twitter. The first step that must be done is to collect Twitter conversation data / Tweet related to SAMSUNG. This process can be done via the Twitter API. Twitter API is an APi or Application Programming Interface officially provided by Twitter in order to provide flexibility for its users to interact with Twitter and Twitter Database. One of the Twitter API features is that Twitter users can collect Twitter data in a certain time scale. A full explanation regarding the Twitter API can be found at <https://developer.twitter.com/en/docs/twitter-api>. Not all Twitter accounts can retrieve Twitter data, only developer accounts that have been approved by Twitter can do this.
+
+##### Install and Load Package
+
+First of all, install and load the required packages.
+
+```{r eval=FALSE, include= TRUE}
+# Install Rtweet Package
+install.packages("rtweet")
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load Package
+library(rtweet)
+library(igraph)
+library(tidygraph)
+library(tidyverse)
+library(ggraph)
+```
+
+##### **Auth.**
+
+After all packages are installed and uploaded. The next step is to make a connection with Twitter. To make a connection requires a customer key and access token. This access code can be found at <https://developer.twitter.com/en/apps,> after the application for a developer account is approved by Twitter.
+
+```{r eval=FALSE, include= TRUE}
+# Auth. (Fill in the appropriate access code)
+token <- create_token(
+  app = "___",
+  consumer_key = "___",
+  consumer_secret = "___",
+  access_token = "___",
+  access_secret = "___"
+)
+```
+
+##### **Collect Tweet Data**
+
+Once connected, the next step is to determine the keywords and the number of Tweets to be retrieved. Here the keyword that will be used is "SAMSUNG" and the number of tweets to be retrieved is the latest 20000 tweets.
+
+```{r eval=FALSE, include= TRUE}
+# Specify keywords and number of tweet
+keyword <- "SAMSUNG"
+number_tweet <- 20000
+```
+
+```{r eval=FALSE, include= TRUE}
+# Tweet collection process
+tweet <- search_tweets(keyword,
+  n = number_tweet,
+  token = token
+)
+```
+
+```{r include=FALSE}
+tweet <- read_rds("data/tweet-samsung.rds")
+```
+
+```{r}
+# Displays the SAMSUNG-related tweet that has been collected
+head(tweet)
+```
+
+##### **Save Data**
+
+This tweet data can be stored for later use for other analysis.
+
+```{r eval=FALSE, include= TRUE}
+# Save data in .rds format
+write_rds(tweet, "data/tweet-samsung.rds")
+```
+
+#### **Social Network Analysis**
+
+Social network analysis (SNA) is the process of investigating social structures through the use of networks and graph theory. It characterizes networked structures in terms of nodes (individual actors, people, or things within the network) and the ties, edges, or links (relationships or interactions) that connect them. Along with the development of internet technology. Social Network Analysis is widely used for conversation data on social media. One of its applications is to identify key actors in a social media conversation.
+
+##### **Create Network Data**
+
+First of all, we need to convert the tweet data into network format. The network format that is commonly used is the edgelist format. This edge list format consists of 2 components, namely `source` and `target`. In this case, the conversation network to be analyzed is the mention network. Thus, the `source` is the person who mentions, and the `target` is the person who is mentioned.
+
+```{r}
+# Convert data to edgelist format
+edge_list <- tweet %>%
+  select(screen_name, mentions_screen_name) %>%
+  unnest(mentions_screen_name) %>%
+  drop_na() %>%
+  rename(source = screen_name, target = mentions_screen_name) %>%
+  select(source, target)
+```
+
+```{r}
+# Show Edge list
+head(edge_list)
+```
+
+```{r}
+# Create Network
+g <- graph_from_data_frame(edge_list, directed = FALSE)
+```
+
+##### **Overall Network Measurement**
+
+Social Network Analysis is used to measure how the whole conversation takes place. Like seeing how many actors / accounts are involved, the number of conversations, the density of the conversation, and others.
+
+```{r}
+metrik_network <- tibble(
+  number_of_node = vcount(g),
+  number_of_edge = ecount(g),
+  average_path_length = average.path.length(g),
+  diameter = diameter(g),
+  density = edge_density(g),
+  modularity = modularity(cluster_louvain(g))
+)
+metrik_network
+```
+
+Based on the above results, the conversation regarding SAMSUNG is not that tight. This can be seen from the number of nodes and the number of edges that are not too different, as well as the low density value. In addition, the conversations tend to be in groups, this can be seen from the high value of modularity.
+
+##### **Centrality Measurement**
+
+Furthermore, Social Network Analysis can be used to find accounts that are key actors in conversations.
+
+```{r}
+# Create a graph
+g_tidy <- as_tbl_graph(g) %>%
+  mutate(degree_centrality = centrality_degree()) %>%
+  mutate(betweenness_centrality = centrality_betweenness()) %>%
+  mutate(eigen_centrality = centrality_eigen()) %>%
+  mutate(modularity = group_louvain())
+```
+
+```{r}
+# 5 Accounts with the highest degree centrality value
+g_tidy %>%
+  arrange(desc(degree_centrality)) %>%
+  as_tibble() %>%
+  select(name, degree_centrality) %>%
+  slice_head(n = 5)
+```
+
+```{r}
+# 5 Accounts with the highest betweeness centrality value
+g_tidy %>%
+  arrange(desc(betweenness_centrality)) %>%
+  as_tibble() %>%
+  select(name, betweenness_centrality) %>%
+  slice_head(n = 5)
+```
+
+```{r}
+# 5 Accounts with the highest eigenvector centrality value
+g_tidy %>%
+  arrange(desc(eigen_centrality)) %>%
+  as_tibble() %>%
+  select(name, eigen_centrality) %>%
+  slice_head(n = 5)
+```
+
+It can be seen above, that each measurement result is different because it measures different things too.
+
+##### **Community Detection**
+
+```{r}
+# Number of communities formed
+g_tidy %>%
+  select(modularity) %>%
+  as_tibble() %>%
+  distinct() %>%
+  count() %>%
+  rename(number_of_community = n)
+```
+
+Terdapat banyak 210 komunitas percakapan. 
+
+##### **Network Visualization**
+
+In the last stage, the SAMSUNG conversation network can be visualized
+
+```{r}
+# Create visualization
+plot <- g_tidy %>%
+  filter(degree_centrality > 3) %>%
+  mutate(connected_component = group_components()) %>%
+  filter(connected_component == 1) %>%
+  ggraph(layout = "graphopt") +
+  geom_edge_arc2(aes(edge_colour = as.factor(node.modularity)),
+    edge_width = 0.3,
+    strength = 0.8,
+    edge_alpha = 0.4
+  ) +
+  geom_node_point(aes(
+    colour = as.factor(modularity),
+    size = degree_centrality,
+    alpha = 0.8
+  ), position = "identity") +
+  geom_node_text(aes(
+    filter = degree_centrality >= 30,
+    size = degree_centrality,
+    label = name
+  ),
+  alpha = 0.8,
+  check_overlap = F,
+  repel = F
+  ) +
+  scale_size(range = c(1, 7)) +
+  theme_graph() +
+  coord_fixed() +
+  theme(legend.position = "none")
+```
+
+```{r}
+# Show Visualization
+plot
+```
+
+------------------------------------------------------------------------
+
+### **Conclusion**
+
+Social Network Analysis can be used to identify key actors in conversations on social media.
+
+------------------------------------------------------------------------
+
+### Post Test
+
+1.  Collect twitter conversation data related to a well-known brand that you like
+
+2.  Analyze key actors in the conversation
+
+3.  Interpret the result

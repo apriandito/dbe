@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Muhammad Apriandito - Digital Business Experience" />
+<meta name="author" content="Manahan Siallagan - Muhammad Apriandito" />
 
 
 <title>Modul 1: Introduction to R for Data Analytics</title>
@@ -249,7 +249,7 @@ pre code {
 
 
 <h1 class="title toc-ignore"><strong>Modul 1: Introduction to R for Data Analytics</strong></h1>
-<h4 class="author">Muhammad Apriandito - Digital Business Experience</h4>
+<h4 class="author">Manahan Siallagan - Muhammad Apriandito</h4>
 
 </div>
 
@@ -257,16 +257,16 @@ pre code {
 <hr />
 <div id="reading-material" class="section level3">
 <h3><strong>Reading Material</strong></h3>
-<p>Please read the following materials before class:</p>
+<p>Please read the following material before class starts.</p>
 <ol style="list-style-type: decimal">
-<li><p>An Introduction to R: <a href="https://intro2r.com/" class="uri">https://intro2r.com/</a></p></li>
-<li><p>R for Data Science: <a href="https://r4ds.had.co.nz/" class="uri">https://r4ds.had.co.nz/</a></p></li>
+<li><p><a href="https://intro2r.com/" class="uri">An Introduction to R</a></p></li>
+<li><p><a href="https://r4ds.had.co.nz/" class="uri">R for Data Science</a></p></li>
 </ol>
 <hr />
 </div>
 <div id="pretest" class="section level3">
 <h3><strong>Pretest</strong></h3>
-<p>Please anwer this following question and submit it in google classroom</p>
+<p>Based on the reading material above, please answer the following questions and collect the answers via Google Classroom.</p>
 <ol style="list-style-type: decimal">
 <li><p>How many data types and structures are there in the R programming language?</p></li>
 <li><p>State the type of control flow?</p></li>
@@ -405,13 +405,13 @@ pre code {
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((profit <span class="sc">/</span> cost_of_investment) <span class="sc">*</span> <span class="fl">0.1</span>)</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Using the ROI function that has been created</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">roi</span>(<span class="at">profit =</span> <span class="dv">175</span>, <span class="at">cost_of_investment =</span>  <span class="dv">75</span>)</span></code></pre></div>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">roi</span>(<span class="at">profit =</span> <span class="dv">175</span>, <span class="at">cost_of_investment =</span> <span class="dv">75</span>)</span></code></pre></div>
 <pre><code>## [1] 0.2333333</code></pre>
 </div>
 </div>
 <div id="package" class="section level4">
 <h4><strong>Package</strong></h4>
-<p>R Package is a collection of functions / functions or data in R. There are many packages created / developed by other users. The following are examples of packages that are commonly used. To be able to use the existing functions in a package, we must install and load the package first.</p>
+<p>R Package is a collection of functions / functions or data in R. There are many packages created / developed by other users. To be able to use the existing functions in a package, we must install and load the package first. The following are examples of packages that are commonly used.</p>
 <div id="readxl" class="section level5">
 <h5><strong>Readxl</strong></h5>
 <p>The readxl package is useful for importing data in .xlsx or .xls format into the R environment.</p>
@@ -422,10 +422,10 @@ pre code {
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import .xlsx data</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>df_xlsx <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">&quot;data/Sales.xlsx&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View Data</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_xlsx)</span></code></pre></div>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>df_xlsx</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Date"],"name":[1],"type":["dttm"],"align":["right"]},{"label":["Sales"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-01-01","2":"121"},{"1":"2020-02-01","2":"98"},{"1":"2020-03-01","2":"86"},{"1":"2020-04-01","2":"76"},{"1":"2020-05-01","2":"89"},{"1":"2020-06-01","2":"75"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Date"],"name":[1],"type":["dttm"],"align":["right"]},{"label":["Sales"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-01-01","2":"121"},{"1":"2020-02-01","2":"98"},{"1":"2020-03-01","2":"86"},{"1":"2020-04-01","2":"76"},{"1":"2020-05-01","2":"89"},{"1":"2020-06-01","2":"75"},{"1":"2020-07-01","2":"89"},{"1":"2020-08-01","2":"23"},{"1":"2020-09-01","2":"92"},{"1":"2020-10-01","2":"123"},{"1":"2020-11-01","2":"154"},{"1":"2020-12-01","2":"102"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -439,10 +439,10 @@ pre code {
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import .csv data</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>df_csv <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/Sales.csv&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View Data</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_csv)</span></code></pre></div>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>df_csv</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Date"],"name":[1],"type":["dttm"],"align":["right"]},{"label":["Sales"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-01-01","2":"121"},{"1":"2020-02-01","2":"98"},{"1":"2020-03-01","2":"86"},{"1":"2020-04-01","2":"76"},{"1":"2020-05-01","2":"89"},{"1":"2020-06-01","2":"75"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Date"],"name":[1],"type":["dttm"],"align":["right"]},{"label":["Sales"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020-01-01","2":"121"},{"1":"2020-02-01","2":"98"},{"1":"2020-03-01","2":"86"},{"1":"2020-04-01","2":"76"},{"1":"2020-05-01","2":"89"},{"1":"2020-06-01","2":"75"},{"1":"2020-07-01","2":"89"},{"1":"2020-08-01","2":"23"},{"1":"2020-09-01","2":"92"},{"1":"2020-10-01","2":"123"},{"1":"2020-11-01","2":"154"},{"1":"2020-12-01","2":"102"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <hr />
