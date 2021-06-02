@@ -1,0 +1,79 @@
+---
+title: '**Final Project**'
+author: "Manahan Siallagan - Muhammad Apriandito"
+output:
+  pdf_document: default
+  html_document:
+    theme: paper
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",
+  dev.args = list(type = "cairo-png"),
+  fig.height = 5,
+  fig.width = 9,
+  tidy = "styler", tidy.opts = list(strict = FALSE),
+  fig.align = "center"
+)
+options(scipen = 10000)
+set.seed(1234)
+```
+
+------------------------------------------------------------------------
+
+### **Final Project**
+
+For the final project, you and your group are asked to make a data analysis based on the following data.
+
+------------------------------------------------------------------------
+
+#### **Finance**
+
+-   Cryptocurrency Price Forecasting: <https://www.kaggle.com/taniaj/cryptocurrency-market-history-coinmarketcap>
+
+-   Financial Tweet: <https://www.kaggle.com/davidwallach/financial-tweets> 
+
+-   Predicting Credit Risk: <https://www.kaggle.com/uciml/german-credit>
+
+------------------------------------------------------------------------
+
+#### **Marketing**
+
+-   Customer Segmentation: <https://www.kaggle.com/vjchoudhary7/customer-segmentation-tutorial-in-python>
+
+-   Bank Marketing Campaign: <https://www.kaggle.com/janiobachmann/bank-marketing-campaign-opening-a-term-deposit>
+
+-   Product Recommendation: <https://www.kaggle.com/roshansharma/market-basket-optimization>
+
+------------------------------------------------------------------------
+
+#### **Operation**
+
+-   Predictive Maintenance: <https://www.kaggle.com/yuansaijie0604/xinjiang-pm>
+
+-   Estimate Day of Package Arrival Delay: <https://www.kaggle.com/olistbr/brazilian-ecommerce>
+
+-   Predicting Inventory and Sales Ratio: <https://www.kaggle.com/census/total-business-inventories-and-sales-data>
+
+------------------------------------------------------------------------
+
+#### **Human Resource**
+
+-   Employee Churn: <https://www.kaggle.com/c/employee-churn-prediction>
+
+-   Human Resource Attrition and Performance: <https://www.kaggle.com/pavansubhasht/ibm-hr-analytics-attrition-dataset>
+
+-   Predicting Interview Attendance: <https://www.kaggle.com/vishnusraghavan/the-interview-attendance-problem>
+
+------------------------------------------------------------------------
+
+#### **Enterpreneur**
+
+-   Email Campaign Management for SME: <https://www.kaggle.com/loveall/email-campaign-management-for-sme?select=Train_psolI3n.csv>
+
+-   Online Business Sales 2017-2019: <https://www.kaggle.com/tylermorse/retail-business-sales-20172019>
+
+-   Brand Analysis/Sentiment Analysis <https://www.kaggle.com/aaroha33/ecommerce>
