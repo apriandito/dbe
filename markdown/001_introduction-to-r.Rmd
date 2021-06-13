@@ -247,7 +247,7 @@ roi(profit = 175, cost_of_investment = 75)
 
 R Package is a collection of functions / functions or data in R. There are many packages created / developed by other users. To be able to use the existing functions in a package, we must install and load the package first. The following are examples of packages that are commonly used.
 
-##### **Readxl**
+##### **Readxl: Import Excel Data**
 
 The readxl package is useful for importing data in .xlsx or .xls format into the R environment.
 
@@ -261,9 +261,9 @@ install.packages("readxl")
 library(readxl)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Import .xlsx data
-df_xlsx <- read_xlsx("data/Sales.xlsx")
+df_xlsx <- read_xls("data/Superstore.xls")
 ```
 
 ```{r}
@@ -271,7 +271,7 @@ df_xlsx <- read_xlsx("data/Sales.xlsx")
 df_xlsx
 ```
 
-##### **Readr**
+##### **Readr: Import CSV Data**
 
 The readr package is useful for importing data in .csv format or other text formats into the R environment.
 
@@ -287,12 +287,100 @@ library(readr)
 
 ```{r message=FALSE, warning=FALSE}
 # Import .csv data
-df_csv <- read_csv("data/Sales.csv")
+df_csv <- read_csv("data/Superstore.csv")
 ```
 
 ```{r}
 # View Data
 df_csv
+```
+
+##### **Dplyr: Data Transformation**
+
+Dplyr is an R package that is widely used for data transformation and exploration.
+
+```{r eval=FALSE, include= TRUE}
+# Install package
+install.packages("dplyr")
+```
+
+```{r}
+# Load package
+library(dplyr)
+```
+
+The following are some examples of common functions from the dplyr package.
+
+###### **Select**
+
+The first function is `select()` which is used to select a particular column.
+
+```{r}
+# Select variabel "order_date" dan "customer_name"
+df_select <- select(df_csv, c("order_date", "customer_name"))
+
+# Show the first 6 row
+head(df_select)
+```
+
+###### **Filter**
+
+The next function is the `filter()` function which functions to filter data based on a condition.
+
+```{r}
+# Filter segment = Corporate
+df_filter <- filter(df_csv, segment == "Corporate")
+
+# Show the first 6 row
+head(df_filter)
+```
+
+###### **Mutate**
+The `mutate()` function can be used to create new variables.
+
+```{r}
+# Create a new variable using the mutate()
+df_mutate <- mutate(df_csv, cost = sales - profit)
+
+# Show the first 6 row
+head(df_mutate)
+```
+
+##### **summarise**
+The `summarise()` function is used to summarize several data values ​​into a single value. This function will be very useful when combined with other functions in `dplyr`. The summarise functions that can be used include `mean()`, `median()`, `sd()`, `min()`, `max()`, `quantile()`, `first()`, `last ()`. For example, we will calculate the average sales.
+
+```{r}
+# Calculate the average sales
+df_summarise <- summarise(df_csv, mean(sales))
+
+# Show calculation results 
+print(df_summarise)
+```
+
+
+
+##### **Arrange**
+The `arrange()` function can be used to sort values by a column.
+
+```{r}
+# Sort data by "profit"
+df_arrange <- arrange(df_csv, profit)
+
+# Show the first 6 row
+head(df_arrange)
+```
+
+##### **Pipe**
+The pipe function denoted by the notation `%>%` is used to create a continuous function.
+
+```{r}
+# Finding the average sales rate for the corporate segment 
+df_pipe <- df_csv %>%
+  filter(segment == "Corporate") %>%
+  summarise(mean(sales))
+
+# Show calculation results 
+print(df_pipe)
 ```
 
 ------------------------------------------------------------------------
